@@ -1,52 +1,91 @@
-# Prerequisites
-*.d
+using System;
+using System.Collections.Generic;
+using System.Windows.Forms;
 
-# Object files
-*.o
-*.ko
-*.obj
-*.elf
+namespace ReservasVuelo
+{
+    public partial class FormReservas : Form
+    {
+        private Dictionary<int, string> reservas = new Dictionary<int, string>();
+        private int totalPuestos = 50; // Número total de puestos en el vuelo
 
-# Linker output
-*.ilk
-*.map
-*.exp
+        public FormReservas()
+        {
+            InitializeComponent();
+            InitializePuestos();
+        }
 
-# Precompiled Headers
-*.gch
-*.pch
+        private void InitializePuestos()
+        {
+            for (int i = 1; i <= totalPuestos; i++)
+            {
+                ListViewItem item = new ListViewItem(i.ToString());
+                item.SubItems.Add("Disponible");
+                listViewPuestos.Items.Add(item);
+            }
+        }
 
-# Libraries
-*.lib
-*.a
-*.la
-*.lo
+        private void ReservarPuesto(int numeroPuesto, string nombrePasajero)
+        {
+            if (!reservas.ContainsKey(numeroPuesto))
+            {
+                reservas.Add(numeroPuesto, nombrePasajero);
+                ListViewItem item = listViewPuestos.Items[numeroPuesto - 1];
+                item.SubItems[1].Text = "Reservado: " + nombrePasajero;
+            }
+        }
 
-# Shared objects (inc. Windows DLLs)
-*.dll
-*.so
-*.so.*
-*.dylib
+        private void CancelarReserva(int numeroPuesto)
+        {
+            if (reservas.ContainsKey(numeroPuesto))
+            {
+                reservas.Remove(numeroPuesto);
+                ListViewItem item = listViewPuestos.Items[numeroPuesto - 1];
+                item.SubItems[1].Text = "Disponible";
+            }
+        }
 
-# Executables
-*.exe
-*.out
-*.app
-*.i*86
-*.x86_64
-*.hex
+        private void ReiniciarSistema()
+        {
+            reservas.Clear();
+            foreach (ListViewItem item in listViewPuestos.Items)
+            {
+                item.SubItems[1].Text = "Disponible";
+            }
+        }
 
-# Debug files
-*.dSYM/
-*.su
-*.idb
-*.pdb
+        private void buttonReservar_Click(object sender, EventArgs e)
+        {
+            int numeroPuesto = Convert.ToInt32(textBoxNumeroPuesto.Text);
+            string nombrePasajero = textBoxNombrePasajero.Text;
 
-# Kernel Module Compile Results
-*.mod*
-*.cmd
-.tmp_versions/
-modules.order
-Module.symvers
-Mkfile.old
-dkms.conf
+            if (numeroPuesto >= 1 && numeroPuesto <= totalPuestos)
+            {
+                ReservarPuesto(numeroPuesto, nombrePasajero);
+            }
+            else
+            {
+                MessageBox.Show("Número de puesto no válido. Ingrese un número válido.");
+            }
+        }
+
+        private void buttonCancelarReserva_Click(object sender, EventArgs e)
+        {
+            int numeroPuesto = Convert.ToInt32(textBoxNumeroPuesto.Text);
+
+            if (numeroPuesto >= 1 && numeroPuesto <= totalPuestos)
+            {
+                CancelarReserva(numeroPuesto);
+            }
+            else
+            {
+                MessageBox.Show("Número de puesto no válido. Ingrese un número válido.");
+            }
+        }
+
+        private void buttonReiniciar_Click(object sender, EventArgs e)
+        {
+            ReiniciarSistema();
+        }
+    }
+}
